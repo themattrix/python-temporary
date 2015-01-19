@@ -1,19 +1,22 @@
 from setuptools import setup
 
 setup(
-    name='{{ package_name }}',
-    version='{{ package_version }}',
-    packages=('{{ package_name }}',),
-    url='https://github.com/{{ github_user }}/{{ repo_name }}',
+    name='temporary',
+    version='0.0.1',
+    packages=('temporary',),
+    url='https://github.com/themattrix/python-temporary',
     license='MIT',
-    author='{{ author_name }}',
-    author_email='{{ author_email }}',
-    install_requires=(
-        {{ install_requires|pytuple }}),
+    author='Matthew Tardiff',
+    author_email='mattrix@gmail.com',
+    install_requires=(),
     tests_require=(
-        {{ tests_require|pytuple }}),
+        'nose',
+        'flake8',
+        'pyflakes',
+        'coverage',),
     description=(
-        {{ short_description|pystring }}),
+        'Decorators and context managers for managing temporary files'
+        'and directories.'),
     classifiers=(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2',

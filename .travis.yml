@@ -1,0 +1,28 @@
+sudo: false
+language: python
+python:
+- 2.6
+- 2.7
+- 3.2
+- 3.3
+- 3.4
+- pypy
+- pypy3
+install:
+- pip install -r requirements.txt
+- pip install coveralls
+- python setup.py develop
+before_script: flake8 setup.py "temporary"
+script: nosetests --with-coverage --cover-tests --cover-inclusive --cover-package="temporary" "temporary/test"
+after_success: coveralls
+deploy:
+  provider: pypi
+  user: themattrix
+  distributions: sdist bdist_wheel
+  on:
+    python: 2.7
+    tags: true
+    all_branches: true
+    repo: themattrix/python-temporary
+  password:
+    secure: UbHjph8cfcRUmZM9Z+o1Bkc3WjU1vhiPN9ipwfVZXmT6P5TXjMioSGnxD9r56i3lwtcqee5e4AOEx6uHuHSSvodkskLrMOcZVzXe5xcmE+90R7uHgDVapIuoeQIgoqfB5Tx1QaGsw2bpUe7azZLQpVCtZZpU1IoelFq/CXNbR3Y=
