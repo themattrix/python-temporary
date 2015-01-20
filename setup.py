@@ -8,7 +8,8 @@ setup(
     license='MIT',
     author='Matthew Tardiff',
     author_email='mattrix@gmail.com',
-    install_requires=(),
+    install_requires=(
+        'contextlib2',),
     tests_require=(
         'nose',
         'flake8',
