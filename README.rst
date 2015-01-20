@@ -3,11 +3,13 @@ Temporary |Version| |Build| |Coverage| |Health|
 
 |Compatibility| |Implementations| |Format| |Downloads|
 
-Decorators and context managers for managing temporary files and directories.
+Context managers for managing temporary files and directories.
+
 
 .. code:: python
 
-    # TODO: add super short usage
+    with temp_dir(suffix='', prefix='tmp', parent_dir=None, make_cwd=False):
+        ...
 
 
 Installation:
@@ -19,12 +21,20 @@ Installation:
 .. TODO: longer description
 
 
-Example
--------
+Examples
+--------
 
 .. code:: python
 
-    # TODO: add example
+    from os import getcwd
+    from os.path import exists
+    from temporary import temp_dir
+
+    with temp_dir(make_cwd=True) as d:
+        assert d == getcwd()
+
+    assert not exists(d)
+    assert d != getcwd()
 
 
 .. |Build| image:: https://travis-ci.org/themattrix/python-temporary.svg?branch=master

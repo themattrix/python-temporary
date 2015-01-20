@@ -1,4 +1,5 @@
-from contextlib2 import contextmanager
+from contextlib import contextmanager
+from errno import ENOENT
 from os import chdir, getcwd
 from shutil import rmtree
 from tempfile import mkdtemp
@@ -15,4 +16,8 @@ def temp_dir(suffix='', prefix='tmp', parent_dir=None, make_cwd=False):
     finally:
         if make_cwd:
             chdir(prev_cwd)
-        rmtree(abs_path)
+        try:
+            rmtree(abs_path)
+        except OSError as e:
+            if e.errno != ENOENT:
+                raise

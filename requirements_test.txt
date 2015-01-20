@@ -2,3 +2,6 @@ nose
 flake8
 pyflakes
 coverage
+simian
+contextlib2
+mock

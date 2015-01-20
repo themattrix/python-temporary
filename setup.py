@@ -2,22 +2,23 @@ from setuptools import setup
 
 setup(
     name='temporary',
-    version='0.0.1',
+    version='0.1.0',
     packages=('temporary',),
     url='https://github.com/themattrix/python-temporary',
     license='MIT',
     author='Matthew Tardiff',
     author_email='mattrix@gmail.com',
-    install_requires=(
-        'contextlib2',),
+    install_requires=(),
     tests_require=(
         'nose',
         'flake8',
         'pyflakes',
-        'coverage',),
+        'coverage',
+        'simian',
+        'contextlib2',
+        'mock',),
     description=(
-        'Decorators and context managers for managing temporary files'
-        'and directories.'),
+        'Context managers for managing temporary files and directories.'),
     classifiers=(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2',
