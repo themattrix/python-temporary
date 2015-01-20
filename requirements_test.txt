@@ -1,7 +1,7 @@
-nose
-flake8
-pyflakes
-coverage
-simian
 contextlib2
+coverage
+flake8
 mock
+nose
+pyflakes
+simian

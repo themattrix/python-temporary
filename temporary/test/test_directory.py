@@ -93,12 +93,12 @@ def test_temp_dir_with_failed_rmtree(master_mock):
 @patch(directory, external=('tempfile.mkdtemp',))
 def test_temp_dir_passes_through_mkdtemp_args(master_mock):
     master_mock.mkdtemp.side_effect = (DummyException(),)
-    pass_through_args = ('suffix', 'prefix', 'parent_dir')
     try:
-        with directory.temp_dir(*pass_through_args):
+        with directory.temp_dir('suffix', 'prefix', 'parent_dir'):
             pass  # pragma: no cover
     except DummyException:
-        master_mock.mkdtemp.assert_called_once_with(*pass_through_args)
+        master_mock.mkdtemp.assert_called_once_with(
+            'suffix', 'prefix', 'parent_dir')
         raise
 
 

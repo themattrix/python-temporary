@@ -10,13 +10,13 @@ setup(
     author_email='mattrix@gmail.com',
     install_requires=(),
     tests_require=(
-        'nose',
-        'flake8',
-        'pyflakes',
-        'coverage',
-        'simian',
         'contextlib2',
-        'mock',),
+        'coverage',
+        'flake8',
+        'mock',
+        'nose',
+        'pyflakes',
+        'simian',),
     description=(
         'Context managers for managing temporary files and directories.'),
     classifiers=(
