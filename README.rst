@@ -57,7 +57,7 @@ This time let's make the temporary directory our working directory:
     >>> assert d != getcwd()
 
 The suffix, prefix, and parent_dir options are passed to the standard
-tempfile.mkdtemp() function:
+``tempfile.mkdtemp()`` function:
 
 .. code:: python
 
@@ -68,7 +68,7 @@ tempfile.mkdtemp() function:
     ...         assert basename(d).startswith('pre')
     ...         assert basename(d).endswith('suf')
 
-This function can also be used as a decorator, with the in_temp_dir alias:
+This function can also be used as a decorator, with the ``in_temp_dir`` alias:
 
 .. code:: python
 
