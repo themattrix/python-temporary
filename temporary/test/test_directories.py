@@ -6,7 +6,7 @@ from os.path import dirname, exists, isdir, isfile, join
 from simian import patch
 
 # module under test
-from temporary import directory
+from temporary import directories
 
 
 #
@@ -37,7 +37,7 @@ class DummyException(Exception):
 @restore_cwd()
 def test_temp_dir_without_chdir_creates_temp_dir():
     cwd = getcwd()
-    with directory.temp_dir() as d:
+    with directories.temp_dir() as d:
         eq_(isdir(d), True)
         eq_(getcwd(), cwd)
     eq_(exists(d), False)
@@ -47,7 +47,7 @@ def test_temp_dir_without_chdir_creates_temp_dir():
 @restore_cwd()
 def test_temp_dir_with_chdir_creates_temp_dir():
     cwd = getcwd()
-    with directory.temp_dir(make_cwd=True) as d:
+    with directories.temp_dir(make_cwd=True) as d:
         eq_(isdir(d), True)
         eq_(getcwd(), d)
     eq_(exists(d), False)
@@ -56,7 +56,7 @@ def test_temp_dir_with_chdir_creates_temp_dir():
 
 @restore_cwd()
 def test_temp_dir_deletes_all_children():
-    with directory.temp_dir() as d:
+    with directories.temp_dir() as d:
         f = join(d, 'deep', 'deeper', 'file')
         create_file_in_tree(f)
         eq_(isfile(f), True)
@@ -66,35 +66,36 @@ def test_temp_dir_deletes_all_children():
 
 @restore_cwd()
 def test_changing_to_temp_dir_manually_still_allows_deletion():
-    with directory.temp_dir() as d:
+    with directories.temp_dir() as d:
         chdir(d)
 
 
 @restore_cwd()
 def test_manually_deleting_temp_dir_is_allowed():
-    with directory.temp_dir() as d:
+    with directories.temp_dir() as d:
         rmdir(d)
 
 
 @raises(OSError)
-@patch(directory, external=('shutil.rmtree',))
+@patch(directories, external=('shutil.rmtree',))
 @restore_cwd()
 def test_temp_dir_with_failed_rmtree(master_mock):
     master_mock.rmtree.side_effect = (OSError(-1, 'Fake'),)
     d = None
     try:
-        with directory.temp_dir() as d:
+        with directories.temp_dir() as d:
             pass
     finally:
+        eq_(isdir(d), True)
         rmdir(d)
 
 
 @raises(DummyException)
-@patch(directory, external=('tempfile.mkdtemp',))
+@patch(directories, external=('tempfile.mkdtemp',))
 def test_temp_dir_passes_through_mkdtemp_args(master_mock):
     master_mock.mkdtemp.side_effect = (DummyException(),)
     try:
-        with directory.temp_dir('suffix', 'prefix', 'parent_dir'):
+        with directories.temp_dir('suffix', 'prefix', 'parent_dir'):
             pass  # pragma: no cover
     except DummyException:
         master_mock.mkdtemp.assert_called_once_with(
@@ -105,6 +106,11 @@ def test_temp_dir_passes_through_mkdtemp_args(master_mock):
 def test_temp_dir_can_import_from_init():
     import temporary
     assert temporary.temp_dir
+
+
+def test_in_temp_dir_can_import_from_init():
+    import temporary
+    assert temporary.in_temp_dir
 
 
 #

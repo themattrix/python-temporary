@@ -1,4 +1,3 @@
-contextlib2
 coverage
 flake8
 mock

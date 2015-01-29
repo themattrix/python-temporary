@@ -2,15 +2,15 @@ from setuptools import setup
 
 setup(
     name='temporary',
-    version='0.1.0',
+    version='1.0.0',
     packages=('temporary',),
     url='https://github.com/themattrix/python-temporary',
     license='MIT',
     author='Matthew Tardiff',
     author_email='mattrix@gmail.com',
-    install_requires=(),
+    install_requires=(
+        'contextlib2',),
     tests_require=(
-        'contextlib2',
         'coverage',
         'flake8',
         'mock',
