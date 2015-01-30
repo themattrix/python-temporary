@@ -10,10 +10,14 @@ python:
 - pypy3
 install:
 - pip install -r requirements_test_runner.txt
+- pip install -r requirements_static_analysis.txt
 - pip install -r requirements_test.txt
 - pip install coveralls
 - python setup.py develop
-before_script: flake8 setup.py "temporary"
+before_script:
+- flake8 setup.py "temporary"
+- pyflakes setup.py "temporary"
+- pylint --rcfile=.pylintrc "temporary"
 script: nosetests --with-doctest --with-coverage --cover-tests --cover-inclusive --cover-package="temporary" "temporary"
 after_success: coveralls
 deploy:
