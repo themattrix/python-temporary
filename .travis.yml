@@ -17,7 +17,6 @@ install:
 before_script:
 - flake8 setup.py "temporary"
 - pyflakes setup.py "temporary"
-- pylint --rcfile=.pylintrc "temporary"
 script: nosetests --with-doctest --with-coverage --cover-tests --cover-inclusive --cover-package="temporary" "temporary"
 after_success: coveralls
 deploy:
