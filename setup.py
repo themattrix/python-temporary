@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='temporary',
-    version='1.0.0',
+    version='1.0.1',
     packages=('temporary',),
     url='https://github.com/themattrix/python-temporary',
     license='MIT',
@@ -11,11 +11,7 @@ setup(
     install_requires=(
         'contextlib2',),
     tests_require=(
-        'coverage',
-        'flake8',
         'mock',
-        'nose',
-        'pyflakes',
         'simian',),
     description=(
         'Context managers for managing temporary files and directories.'),
