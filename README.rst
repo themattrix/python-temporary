@@ -8,18 +8,10 @@ Context managers for managing temporary files and directories.
 
 .. code:: python
 
-    with temp_dir(suffix='', prefix='tmp', parent_dir=None, make_cwd=False):
+    with temp_dir() as d:
         ...
 
-    @in_temp_dir()
-    ...
-
-    with temp_file(
-        content=None,
-        suffix='',
-        prefix='tmp',
-        parent_dir=None,
-        binary=True):
+    with temp_file(content='hello') as f:
         ...
 
 
