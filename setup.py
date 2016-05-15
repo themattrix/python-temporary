@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='temporary',
-    version='1.0.1',
+    version='1.1.0',
     packages=('temporary',),
     url='https://github.com/themattrix/python-temporary',
     license='MIT',
@@ -24,5 +24,6 @@ setup(
         'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy'))

@@ -1,25 +1,25 @@
-from contextlib2 import contextmanager
-from errno import EEXIST, ENOENT
-from nose.tools import eq_, raises
-from os import chdir, getcwd, makedirs, rmdir
-from os.path import dirname, exists, isdir, isfile, join
-from simian import patch
+import errno
+import os
+import os.path
 
-# module under test
-from temporary import directories
+import contextlib2 as contextlib
+import nose.tools
+import simian
+
+import temporary
 
 
 #
 # Decorators
 #
 
-@contextmanager
+@contextlib.contextmanager
 def restore_cwd():
-    cwd = getcwd()
+    cwd = os.getcwd()
     try:
         yield
     finally:
-        chdir(cwd)
+        os.chdir(cwd)
 
 
 #
@@ -34,83 +34,79 @@ class DummyException(Exception):
 # Tests
 #
 
+# noinspection PyCallingNonCallable
 @restore_cwd()
 def test_temp_dir_without_chdir_creates_temp_dir():
-    cwd = getcwd()
-    with directories.temp_dir() as d:
-        eq_(isdir(d), True)
-        eq_(getcwd(), cwd)
-    eq_(exists(d), False)
-    eq_(getcwd(), cwd)
+    cwd = os.getcwd()
+    with temporary.temp_dir() as d:
+        nose.tools.eq_(os.path.isdir(d), True)
+        nose.tools.eq_(os.getcwd(), cwd)
+    nose.tools.eq_(os.path.exists(d), False)
+    nose.tools.eq_(os.getcwd(), cwd)
 
 
+# noinspection PyCallingNonCallable
 @restore_cwd()
 def test_temp_dir_with_chdir_creates_temp_dir():
-    cwd = getcwd()
-    with directories.temp_dir(make_cwd=True) as d:
-        eq_(isdir(d), True)
-        eq_(getcwd(), d)
-    eq_(exists(d), False)
-    eq_(getcwd(), cwd)
+    cwd = os.getcwd()
+    with temporary.temp_dir(make_cwd=True) as d:
+        nose.tools.eq_(os.path.isdir(d), True)
+        nose.tools.eq_(os.getcwd(), d)
+    nose.tools.eq_(os.path.exists(d), False)
+    nose.tools.eq_(os.getcwd(), cwd)
 
 
+# noinspection PyCallingNonCallable
 @restore_cwd()
 def test_temp_dir_deletes_all_children():
-    with directories.temp_dir() as d:
-        f = join(d, 'deep', 'deeper', 'file')
+    with temporary.temp_dir() as d:
+        f = os.path.join(d, 'deep', 'deeper', 'file')
         create_file_in_tree(f)
-        eq_(isfile(f), True)
-    eq_(exists(d), False)
-    eq_(exists(f), False)
+        nose.tools.eq_(os.path.isfile(f), True)
+    nose.tools.eq_(os.path.exists(d), False)
+    nose.tools.eq_(os.path.exists(f), False)
 
 
+# noinspection PyCallingNonCallable
 @restore_cwd()
 def test_changing_to_temp_dir_manually_still_allows_deletion():
-    with directories.temp_dir() as d:
-        chdir(d)
+    with temporary.temp_dir() as d:
+        os.chdir(d)
 
 
+# noinspection PyCallingNonCallable
 @restore_cwd()
 def test_manually_deleting_temp_dir_is_allowed():
-    with directories.temp_dir() as d:
-        rmdir(d)
+    with temporary.temp_dir() as d:
+        os.rmdir(d)
 
 
-@raises(OSError)
-@patch(directories, external=('shutil.rmtree',))
+# noinspection PyCallingNonCallable
+@nose.tools.raises(OSError)
+@simian.patch(temporary.directories, external=('shutil.rmtree',))
 @restore_cwd()
 def test_temp_dir_with_failed_rmtree(master_mock):
     master_mock.rmtree.side_effect = (OSError(-1, 'Fake'),)
     d = None
     try:
-        with directories.temp_dir() as d:
+        with temporary.temp_dir() as d:
             pass
     finally:
-        eq_(isdir(d), True)
-        rmdir(d)
+        nose.tools.eq_(os.path.isdir(d), True)
+        os.rmdir(d)
 
 
-@raises(DummyException)
-@patch(directories, external=('tempfile.mkdtemp',))
+@nose.tools.raises(DummyException)
+@simian.patch(temporary.directories, external=('tempfile.mkdtemp',))
 def test_temp_dir_passes_through_mkdtemp_args(master_mock):
     master_mock.mkdtemp.side_effect = (DummyException(),)
     try:
-        with directories.temp_dir('suffix', 'prefix', 'parent_dir'):
+        with temporary.temp_dir('suffix', 'prefix', 'parent_dir'):
             pass  # pragma: no cover
     except DummyException:
         master_mock.mkdtemp.assert_called_once_with(
             'suffix', 'prefix', 'parent_dir')
         raise
-
-
-def test_temp_dir_can_import_from_init():
-    import temporary
-    assert temporary.temp_dir
-
-
-def test_in_temp_dir_can_import_from_init():
-    import temporary
-    assert temporary.in_temp_dir
 
 
 #
@@ -121,18 +117,18 @@ def create_file_in_tree(path):
     try:
         touch(path)
     except IOError as e:
-        if e.errno != ENOENT:
-            raise                                 # pragma: no cover
-        create_dir_tree(dirname(path))
+        if e.errno != errno.ENOENT:
+            raise  # pragma: no cover
+        create_dir_tree(os.path.dirname(path))
         touch(path)
 
 
 def create_dir_tree(path):
     try:
-        makedirs(path)
-    except OSError as e:                          # pragma: no cover
-        if e.errno != EEXIST or not isdir(path):  # pragma: no cover
-            raise                                 # pragma: no cover
+        os.makedirs(path)
+    except OSError as e:                                        # pragma: no cover
+        if e.errno != errno.EEXIST or not os.path.isdir(path):  # pragma: no cover
+            raise                                               # pragma: no cover
 
 
 def touch(path):
