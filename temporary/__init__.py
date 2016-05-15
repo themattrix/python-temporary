@@ -1,7 +1,7 @@
-from temporary.directories import temp_dir, in_temp_dir
-from temporary.files import temp_file
+# pylint: disable=invalid-name
+import temporary.directories
+import temporary.files
 
-# silence PyFlakes
-assert temp_dir
-assert in_temp_dir
-assert temp_file
+temp_file = temporary.files.temp_file
+temp_dir = temporary.directories.temp_dir
+in_temp_dir = temporary.directories.in_temp_dir

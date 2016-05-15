@@ -1,10 +1,12 @@
-from errno import ENOENT
-from contextlib import contextmanager
-from os import close, remove, write
-from tempfile import mkstemp
+import os
+import tempfile
+
+import contextlib2 as contextlib
+
+import temporary.util
 
 
-@contextmanager
+@contextlib.contextmanager
 def temp_file(
         content=None,
         suffix='',
@@ -17,39 +19,37 @@ def temp_file(
 
     The temporary file is created when entering the context manager and
     deleted when exiting it.
-    >>> from os.path import exists, isfile
-    >>> with temp_file() as f_name:
-    ...     assert isfile(f_name)
-    >>> assert not exists(f_name)
+    >>> import os.path
+    >>> import temporary
+    >>> with temporary.temp_file() as f_name:
+    ...     assert os.path.isfile(f_name)
+    >>> assert not os.path.exists(f_name)
 
     The user may also supply some content for the file to be populated with:
-    >>> with temp_file('hello!') as f_name:
+    >>> with temporary.temp_file('hello!') as f_name:
     ...     with open(f_name) as f:
     ...         assert f.read() == 'hello!'
 
     The temporary file can be placed in a custom directory:
-    >>> from os.path import dirname
-    >>> from temporary import temp_dir
-    >>> with temp_dir() as d_name:
-    ...     with temp_file(parent_dir=d_name) as f_name:
-    ...         assert dirname(f_name) == d_name
+    >>> with temporary.temp_dir() as d_name:
+    ...     with temporary.temp_file(parent_dir=d_name) as f_name:
+    ...         assert os.path.dirname(f_name) == d_name
 
     If, for some reason, the user wants to delete the temporary file before
     exiting the context, that's okay too:
     >>> import os
-    >>> with temp_file() as f_name:
+    >>> with temporary.temp_file() as f_name:
     ...     os.remove(f_name)
     """
-    fd, abs_path = mkstemp(suffix, prefix, parent_dir, not binary)
+    fd, abs_path = tempfile.mkstemp(suffix, prefix, parent_dir, not binary)
 
     try:
-        if content:
-            write(fd, content.encode())
-        close(fd)
+        try:
+            if content:
+                os.write(fd, content.encode())
+        finally:
+            os.close(fd)
         yield abs_path
     finally:
-        try:
-            remove(abs_path)
-        except OSError as e:
-            if e.errno != ENOENT:
-                raise
+        with temporary.util.allow_missing_file():
+            os.remove(abs_path)

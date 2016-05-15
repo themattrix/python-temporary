@@ -1,11 +1,10 @@
-from nose.tools import eq_, raises
-from os import remove
-from os.path import dirname, exists, isfile
-from simian import patch
-from temporary import temp_dir
+import os
+import os.path
 
-# module under test
-from temporary import files
+import nose.tools
+import simian
+
+import temporary
 
 
 #
@@ -21,47 +20,47 @@ class DummyException(Exception):
 #
 
 def test_temp_file_creates_and_deletes_file():
-    with files.temp_file() as f_name:
-        eq_(isfile(f_name), True)
-    eq_(exists(f_name), False)
+    with temporary.temp_file() as f_name:
+        nose.tools.eq_(os.path.isfile(f_name), True)
+    nose.tools.eq_(os.path.exists(f_name), False)
 
 
 def test_temp_file_in_custom_parent_dir():
-    with temp_dir() as parent_dir:
-        with files.temp_file(parent_dir=parent_dir) as f_name:
-            eq_(dirname(f_name), parent_dir)
+    with temporary.temp_dir() as parent_dir:
+        with temporary.temp_file(parent_dir=parent_dir) as f_name:
+            nose.tools.eq_(os.path.dirname(f_name), parent_dir)
 
 
 def test_temp_file_with_content():
-    with files.temp_file('hello!') as f_name:
+    with temporary.temp_file('hello!') as f_name:
         with open(f_name) as f:
             assert f.read() == 'hello!'
 
 
 def test_temp_file_manually_deleted_is_allowed():
-    with files.temp_file() as f_name:
-        remove(f_name)
+    with temporary.temp_file() as f_name:
+        os.remove(f_name)
 
 
-@raises(OSError)
+@nose.tools.raises(OSError)
 def test_temp_file_with_failed_remove():
 
-    @patch(files, external=('os.remove',))
+    @simian.patch(temporary.files, external=('os.remove',))
     def blow_up(master_mock):
         master_mock.remove.side_effect = (OSError(-1, 'Fake'),)
-        with files.temp_file(parent_dir=parent_dir):
+        with temporary.temp_file(parent_dir=parent_dir):
             pass
 
-    with temp_dir() as parent_dir:
+    with temporary.temp_dir() as parent_dir:
         blow_up()  # pylint: disable=no-value-for-parameter
 
 
-@raises(DummyException)
-@patch(files, external=('tempfile.mkstemp',))
+@nose.tools.raises(DummyException)
+@simian.patch(temporary.files, external=('tempfile.mkstemp',))
 def test_temp_file_passes_through_mkstemp_args(master_mock):
     master_mock.mkstemp.side_effect = (DummyException(),)
     try:
-        ctx = files.temp_file(
+        ctx = temporary.temp_file(
             suffix='suffix',
             prefix='prefix',
             parent_dir='parent_dir',
@@ -72,8 +71,3 @@ def test_temp_file_passes_through_mkstemp_args(master_mock):
         master_mock.mkstemp.assert_called_once_with(
             'suffix', 'prefix', 'parent_dir', True)
         raise
-
-
-def test_temp_file_can_import_from_init():
-    import temporary
-    assert temporary.temp_file

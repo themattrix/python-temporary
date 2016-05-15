@@ -1,30 +1,39 @@
-sudo: false
 language: python
-python:
-- 2.6
-- 2.7
-- 3.2
-- 3.3
-- 3.4
-- pypy
-- pypy3
+matrix:
+  include:
+    - python: 2.6
+      env:
+      - TOXENV=py26
+    - python: 2.7
+      env:
+      - TOXENV=py27
+    - python: 3.3
+      env:
+      - TOXENV=py33
+    - python: 3.4
+      env:
+      - TOXENV=py34
+    - python: 3.5
+      env:
+      - TOXENV=py35
+    - python: pypy
+      env:
+      - TOXENV=pypy
+    - python: pypy3
+      env:
+      - TOXENV=pypy3
 install:
-- pip install -r requirements_test_runner.txt
-- pip install -r requirements_static_analysis.txt
-- pip install -r requirements_test.txt
-- pip install coveralls
-- python setup.py develop
-before_script:
-- flake8 setup.py "temporary"
-- pyflakes setup.py "temporary"
-script: nosetests --with-doctest --with-coverage --cover-tests --cover-inclusive --cover-package="temporary" "temporary"
-after_success: coveralls
+  - pip install tox coveralls
+script:
+  - tox
+after_success:
+  - coveralls
 deploy:
   provider: pypi
   user: themattrix
   distributions: sdist bdist_wheel
   on:
-    python: 2.7
+    condition: $TOXENV == py27
     tags: true
     all_branches: true
     repo: themattrix/python-temporary

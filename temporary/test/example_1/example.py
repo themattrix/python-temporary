@@ -1,9 +1,10 @@
-from os import getcwd
-from os.path import exists
-from temporary import temp_dir
+import os
+import os.path
 
-with temp_dir(make_cwd=True) as d:
-    assert d == getcwd()
+import temporary
 
-assert not exists(d)
-assert d != getcwd()
+with temporary.temp_dir(make_cwd=True) as d:
+    assert d == os.getcwd()
+
+assert not os.path.exists(d)
+assert d != os.getcwd()
