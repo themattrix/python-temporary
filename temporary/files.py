@@ -1,8 +1,9 @@
-import errno
 import os
 import tempfile
 
 import contextlib2 as contextlib
+
+import temporary.util
 
 
 @contextlib.contextmanager
@@ -50,8 +51,5 @@ def temp_file(
             os.close(fd)
         yield abs_path
     finally:
-        try:
+        with temporary.util.allow_missing_file():
             os.remove(abs_path)
-        except OSError as e:
-            if e.errno != errno.ENOENT:
-                raise

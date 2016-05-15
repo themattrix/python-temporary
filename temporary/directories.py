@@ -1,10 +1,11 @@
-import errno
 import functools
 import os
 import shutil
 import tempfile
 
 import contextlib2 as contextlib
+
+import temporary.util
 
 
 @contextlib.contextmanager
@@ -55,11 +56,8 @@ def temp_dir(suffix='', prefix='tmp', parent_dir=None, make_cwd=False):
     finally:
         if make_cwd:
             os.chdir(prev_cwd)
-        try:
+        with temporary.util.allow_missing_file():
             shutil.rmtree(abs_path)
-        except OSError as e:
-            if e.errno != errno.ENOENT:
-                raise
 
 
 in_temp_dir = functools.partial(temp_dir, make_cwd=True)  # pylint: disable=invalid-name
