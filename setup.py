@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='temporary',
-    version='2.0.0',
+    version='2.0.1',
     packages=('temporary',),
     url='https://github.com/themattrix/python-temporary',
     license='MIT',
