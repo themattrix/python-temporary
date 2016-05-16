@@ -31,10 +31,22 @@ def test_temp_file_in_custom_parent_dir():
             nose.tools.eq_(os.path.dirname(f_name), parent_dir)
 
 
-def test_temp_file_with_content():
+def test_temp_file_with_string_content():
     with temporary.temp_file('hello!') as f_name:
         with open(f_name) as f:
             assert f.read() == 'hello!'
+
+
+def test_temp_file_with_bytes_content():
+    with temporary.temp_file(b'hello!') as f_name:
+        with open(f_name, 'rb') as f:
+            assert f.read() == b'hello!'
+
+
+def test_temp_file_with_bytearray_content():
+    with temporary.temp_file(bytearray(b'hello!')) as f_name:
+        with open(f_name, 'rb') as f:
+            assert f.read() == b'hello!'
 
 
 def test_temp_file_manually_deleted_is_allowed():
@@ -63,11 +75,9 @@ def test_temp_file_passes_through_mkstemp_args(master_mock):
         ctx = temporary.temp_file(
             suffix='suffix',
             prefix='prefix',
-            parent_dir='parent_dir',
-            binary=False)
+            parent_dir='parent_dir')
         with ctx:
             pass  # pragma: no cover
     except DummyException:
-        master_mock.mkstemp.assert_called_once_with(
-            'suffix', 'prefix', 'parent_dir', True)
+        master_mock.mkstemp.assert_called_once_with('suffix', 'prefix', 'parent_dir', text=False)
         raise

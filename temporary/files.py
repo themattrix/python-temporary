@@ -11,8 +11,7 @@ def temp_file(
         content=None,
         suffix='',
         prefix='tmp',
-        parent_dir=None,
-        binary=True):
+        parent_dir=None):
     """
     Create a temporary file and optionally populate it with content. The file
     is deleted when the context exits.
@@ -41,12 +40,13 @@ def temp_file(
     >>> with temporary.temp_file() as f_name:
     ...     os.remove(f_name)
     """
-    fd, abs_path = tempfile.mkstemp(suffix, prefix, parent_dir, not binary)
+    binary = isinstance(content, (bytes, bytearray))
+    fd, abs_path = tempfile.mkstemp(suffix, prefix, parent_dir, text=False)
 
     try:
         try:
             if content:
-                os.write(fd, content.encode())
+                os.write(fd, content if binary else content.encode())
         finally:
             os.close(fd)
         yield abs_path

@@ -69,8 +69,8 @@ This function can also be used as a decorator, with the ``in_temp_dir`` alias:
     >>> assert old_cwd == os.getcwd()
 
 
-Temporary Files Examples
-------------------------
+Temporary File Examples
+-----------------------
 
 The temporary file is created when entering the context manager and
 deleted when exiting it.

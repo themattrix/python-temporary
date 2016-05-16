@@ -104,8 +104,7 @@ def test_temp_dir_passes_through_mkdtemp_args(master_mock):
         with temporary.temp_dir('suffix', 'prefix', 'parent_dir'):
             pass  # pragma: no cover
     except DummyException:
-        master_mock.mkdtemp.assert_called_once_with(
-            'suffix', 'prefix', 'parent_dir')
+        master_mock.mkdtemp.assert_called_once_with('suffix', 'prefix', 'parent_dir')
         raise
 
 
