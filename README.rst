@@ -30,20 +30,19 @@ deleted when exiting it:
 
 .. code:: python
 
-    >>> import os.path
     >>> import temporary
-    >>> with temporary.temp_dir() as d:
-    ...     assert os.path.isdir(d)
-    >>> assert not os.path.exists(d)
+    >>> with temporary.temp_dir() as temp_dir:
+    ...     assert temp_dir.is_dir()
+    >>> assert not temp_dir.exists()
 
 This time let's make the temporary directory our working directory:
 
 .. code:: python
 
     >>> import os
-    >>> with temporary.temp_dir(make_cwd=True) as d:
-    ...     assert d == os.getcwd()
-    >>> assert d != os.getcwd()
+    >>> with temporary.temp_dir(make_cwd=True) as temp_dir:
+    ...     assert str(temp_dir) == os.getcwd()
+    >>> assert not str(temp_dir) == os.getcwd()
 
 The suffix, prefix, and parent_dir options are passed to the standard
 ``tempfile.mkdtemp()`` function:
@@ -52,9 +51,9 @@ The suffix, prefix, and parent_dir options are passed to the standard
 
     >>> with temporary.temp_dir() as p:
     ...     with temporary.temp_dir(suffix='suf', prefix='pre', parent_dir=p) as d:
-    ...         assert os.path.dirname(d) == p
-    ...         assert os.path.basename(d).startswith('pre')
-    ...         assert os.path.basename(d).endswith('suf')
+    ...         assert d.parent == p
+    ...         assert d.name.startswith('pre')
+    ...         assert d.name.endswith('suf')
 
 This function can also be used as a decorator, with the ``in_temp_dir`` alias:
 
@@ -77,37 +76,34 @@ deleted when exiting it.
 
 .. code:: python
 
-    >>> import os.path
     >>> import temporary
-    >>> with temporary.temp_file() as f_name:
-    ...     assert os.path.isfile(f_name)
-    >>> assert not os.path.exists(f_name)
+    >>> with temporary.temp_file() as temp_file:
+    ...     assert temp_file.exists()
+    >>> assert not temp_file.exists()
 
 The user may also supply some content for the file to be populated with:
 
 .. code:: python
 
-    >>> with temporary.temp_file('hello!') as f_name:
-    ...     with open(f_name) as f:
+    >>> with temporary.temp_file('hello!') as temp_file:
+    ...     with temp_file.open() as f:
     ...         assert f.read() == 'hello!'
 
 The temporary file can be placed in a custom directory:
 
 .. code:: python
 
-    >>> with temporary.temp_dir() as d_name:
-    ...     with temporary.temp_file(parent_dir=d_name) as f_name:
-    ...         assert os.path.dirname(f_name) == d_name
+    >>> with temporary.temp_dir() as temp_dir:
+    ...     with temporary.temp_file(parent_dir=temp_dir) as temp_file:
+    ...         assert temp_file.parent == temp_dir
 
 If, for some reason, the user wants to delete the temporary file before
 exiting the context, that's okay too:
 
 .. code:: python
 
-    >>> import os
-    >>> with temporary.temp_file() as f_name:
-    ...     os.remove(f_name)
-
+    >>> with temporary.temp_file() as temp_file:
+    ...     temp_file.unlink()
 
 .. |Build| image:: https://travis-ci.org/themattrix/python-temporary.svg?branch=master
    :target: https://travis-ci.org/themattrix/python-temporary
