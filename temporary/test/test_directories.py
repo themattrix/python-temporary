@@ -1,6 +1,5 @@
 import errno
 import os
-import os.path
 
 import contextlib2 as contextlib
 import nose.tools
@@ -27,7 +26,7 @@ def restore_cwd():
 #
 
 class DummyException(Exception):
-    pass
+    """An exception unlikely to be raised by normal code."""
 
 
 #
@@ -38,47 +37,47 @@ class DummyException(Exception):
 @restore_cwd()
 def test_temp_dir_without_chdir_creates_temp_dir():
     cwd = os.getcwd()
-    with temporary.temp_dir() as d:
-        nose.tools.eq_(os.path.isdir(d), True)
-        nose.tools.eq_(os.getcwd(), cwd)
-    nose.tools.eq_(os.path.exists(d), False)
-    nose.tools.eq_(os.getcwd(), cwd)
+    with temporary.temp_dir() as temp_dir:
+        assert temp_dir.is_dir()
+        assert os.getcwd() == cwd
+    assert not temp_dir.exists()
+    assert os.getcwd() == cwd
 
 
 # noinspection PyCallingNonCallable
 @restore_cwd()
 def test_temp_dir_with_chdir_creates_temp_dir():
     cwd = os.getcwd()
-    with temporary.temp_dir(make_cwd=True) as d:
-        nose.tools.eq_(os.path.isdir(d), True)
-        nose.tools.eq_(os.getcwd(), d)
-    nose.tools.eq_(os.path.exists(d), False)
-    nose.tools.eq_(os.getcwd(), cwd)
+    with temporary.temp_dir(make_cwd=True) as temp_dir:
+        assert temp_dir.is_dir()
+        assert temp_dir.samefile(os.getcwd())
+    assert not temp_dir.exists()
+    assert cwd == os.getcwd()
 
 
 # noinspection PyCallingNonCallable
 @restore_cwd()
 def test_temp_dir_deletes_all_children():
-    with temporary.temp_dir() as d:
-        f = os.path.join(d, 'deep', 'deeper', 'file')
-        create_file_in_tree(f)
-        nose.tools.eq_(os.path.isfile(f), True)
-    nose.tools.eq_(os.path.exists(d), False)
-    nose.tools.eq_(os.path.exists(f), False)
+    with temporary.temp_dir() as temp_dir:
+        temp_file = temp_dir / 'deep/deeper/file'
+        create_file_in_tree(temp_file)
+        assert temp_file.is_file()
+    assert not temp_dir.exists()
+    assert not temp_file.exists()
 
 
 # noinspection PyCallingNonCallable
 @restore_cwd()
 def test_changing_to_temp_dir_manually_still_allows_deletion():
-    with temporary.temp_dir() as d:
-        os.chdir(d)
+    with temporary.temp_dir() as temp_dir:
+        os.chdir(str(temp_dir))
 
 
 # noinspection PyCallingNonCallable
 @restore_cwd()
 def test_manually_deleting_temp_dir_is_allowed():
-    with temporary.temp_dir() as d:
-        os.rmdir(d)
+    with temporary.temp_dir() as temp_dir:
+        temp_dir.rmdir()
 
 
 # noinspection PyCallingNonCallable
@@ -87,13 +86,13 @@ def test_manually_deleting_temp_dir_is_allowed():
 @restore_cwd()
 def test_temp_dir_with_failed_rmtree(master_mock):
     master_mock.rmtree.side_effect = (OSError(-1, 'Fake'),)
-    d = None
+    temp_dir = None
     try:
-        with temporary.temp_dir() as d:
+        with temporary.temp_dir() as temp_dir:
             pass
     finally:
-        nose.tools.eq_(os.path.isdir(d), True)
-        os.rmdir(d)
+        assert temp_dir.is_dir()
+        temp_dir.rmdir()
 
 
 @nose.tools.raises(DummyException)
@@ -114,22 +113,9 @@ def test_temp_dir_passes_through_mkdtemp_args(master_mock):
 
 def create_file_in_tree(path):
     try:
-        touch(path)
-    except IOError as e:
+        path.touch()
+    except OSError as e:
         if e.errno != errno.ENOENT:
             raise  # pragma: no cover
-        create_dir_tree(os.path.dirname(path))
-        touch(path)
-
-
-def create_dir_tree(path):
-    try:
-        os.makedirs(path)
-    except OSError as e:                                        # pragma: no cover
-        if e.errno != errno.EEXIST or not os.path.isdir(path):  # pragma: no cover
-            raise                                               # pragma: no cover
-
-
-def touch(path):
-    with open(path, 'wb'):
-        pass
+        path.parent.mkdir(parents=True)
+        path.touch()
